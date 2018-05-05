@@ -54,9 +54,9 @@ def LineTracker(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_o
         Turn_left(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange) #depends on circular track if always left or right
     elif(LM and not LR and not LL): #if left and right see black and only middle sees white then forward
         Forward(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)            
-    elif(LM and LR and not LL or LR: #if right detect line then rotate to right (order of left and right can change based on track precedence)
+    elif(LM and LR and not LL or LR): #if right detect line then rotate to right (order of left and right can change based on track precedence)
         Turn_right(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
-    elif(LM and LL and not LR or LL)  #if left detect line then rotate to left (order of left and right can change based on track precedence)
+    elif(LM and LL and not LR or LL):  #if left detect line then rotate to left (order of left and right can change based on track precedence)
         Turn_left(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
                
 	
@@ -94,7 +94,7 @@ except KeyboardInterrupt:
 while(True):
     LineTracker(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
     right_signal=GPIO.input(trig_right)
-	left_signal= GPIO.input(trig_left)
+    left_signal= GPIO.input(trig_left)
 	if(left_signal==1):
 	    Turn_right(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
 	if(right_signal==1):
