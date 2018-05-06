@@ -2,7 +2,10 @@ import RPi.GPIO as GPIO
 import sys
 import termios,tty
 import cv2
-
+import numpy as np
+from queue import Queue
+import threading
+from detector import get_score, get_action
 def capture(cap):
     while(cap.isOpened()):           
        ret, frame = cap.read()
@@ -11,7 +14,10 @@ def capture(cap):
 
        # ws.send(imgEncode.tostring().encode("base64"))
        time.sleep(0.3)
-       print(frame)
+    #    print(frame)
+       outputh, outputv = get_score(frame)
+       action = int(get_action(outputh, outputv))
+       print(action)
     #ws.close()
 
 def Forward(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange):
