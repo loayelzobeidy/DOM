@@ -82,13 +82,16 @@ def LineTracker(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_o
         Forward(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)      
     time.sleep(0.01)
     Stop(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
+def getProximityIR():
+    return GPIO.input(proximity_IR)==0 #0 something infront and 1 nothing infront
+
 GPIO.setmode(GPIO.BOARD)
 import time
 right_wheel_red=11
 right_wheel_brown=13
 left_wheel_yellow =23
-#left_wheel_orange=
 left_wheel_orange=24
+proximity_IR=37
 #setup led(pin 8) as output pin
 lineLeft=40 #arbitrary ports
 lineRight=36 #arbitrary ports
@@ -108,6 +111,8 @@ except KeyboardInterrupt:
 GPIO.setup(lineLeft, GPIO.IN) # Left line sensor
 GPIO.setup(lineMiddle, GPIO.IN) # Right line sensor
 GPIO.setup(lineRight, GPIO.IN) # Right line sensor
+GPIO.setup(proximity_IR, GPIO.IN) # infrared proximity sensor
+
 
 while(True):
 
@@ -122,7 +127,7 @@ while(True):
  #       if(right_signal==0 and left_signal==0):
 #            Forward(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)            
     LineTracker(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
-    print(getLineM())
+    print(getProximityIR())
 #	input = getch()
     cap = cv2.VideoCapture(0)
     capture(cap)
