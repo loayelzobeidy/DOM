@@ -1,6 +1,19 @@
 import RPi.GPIO as GPIO
 import sys
 import termios,tty
+import cv2
+
+def capture(cap):
+    while(cap.isOpened()):           
+       ret, frame = cap.read()
+	#_,imgEncode = cv2.imencode('.jpg',frame)
+#     	print(imgEncode.tostring().encode("base64"))
+
+       # ws.send(imgEncode.tostring().encode("base64"))
+       time.sleep(0.3)
+       print(frame)
+    #ws.close()
+
 def Forward(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange):
     GPIO.output(left_wheel_yellow,GPIO.HIGH)
     GPIO.output(left_wheel_orange,GPIO.LOW)
@@ -102,26 +115,28 @@ while(True):
   #          Forward(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
  #       if(right_signal==0 and left_signal==0):
 #            Forward(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)            
-        LineTracker(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
-        print(getLineM())
+    LineTracker(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
+    print(getLineM())
 #	input = getch()
-	if(input=='a'):
+    cap = cv2.VideoCapture(0)
+    capture(cap)
+    if(input=='a'):
             Turn_left(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
             print('a')
-	if(input=='w'):
+    if(input=='w'):
             Forward(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
             print('w')
-	if(input=='s'):
+    if(input=='s'):
             Backward(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
             print('s')
-	if(input=='d'):
+    if(input=='d'):
             Turn_right(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
         #Turn_right(left_wheel,right_wheel)
             print('d')
-	if(input=='q'):
+    if(input=='q'):
             Stop(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
             #Stop(left_wheel,right_wheel)
             print('d')
-	if(input=='e'):
+    if(input=='e'):
             print('exitinnnnggg')
             break
