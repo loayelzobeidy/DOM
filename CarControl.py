@@ -82,6 +82,34 @@ def LineTracker(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_o
         Forward(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)      
     time.sleep(0.01)
     Stop(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
+
+def distance():
+    # set Trigger to HIGH
+    GPIO.output(sonic_TrigF, True)
+ 
+    # set Trigger after 0.01ms to LOW
+    time.sleep(0.00001)
+    GPIO.output(sonic_TrigF, False)
+ 
+    StartTime = time.time()
+    StopTime = time.time()
+ 
+    # save StartTime
+    while GPIO.input(sonic_EchoF) == 0:
+        StartTime = time.time()
+ 
+    # save time of arrival
+    while GPIO.input(sonic_EchoF) == 1:
+        StopTime = time.time()
+ 
+    # time difference between start and arrival
+    TimeElapsed = StopTime - StartTime
+    # multiply with the sonic speed (34300 cm/s)
+    # and divide by 2, because there and back
+    distance = (TimeElapsed * 34300) / 2
+ 
+    return distance
+
 GPIO.setmode(GPIO.BOARD)
 import time
 right_wheel_red=11
@@ -89,16 +117,27 @@ right_wheel_brown=13
 left_wheel_yellow =23
 #left_wheel_orange=
 left_wheel_orange=24
+
+#Ultrasonic
+sonic_TrigF=37
+sonic_EchoF=35
+# TrigL
 #setup led(pin 8) as output pin
-lineLeft=40 #arbitrary ports
-lineRight=36 #arbitrary ports
-lineMiddle=38#arbitrary ports
+#Line follower
+lineLeft=40 
+lineRight=36 
+lineMiddle=38
+#Motor
 GPIO.setup(right_wheel_red, GPIO.OUT,initial=0)
 #GPIO.setup(33, GPIO.OUT,initial=1)
 #GPIO.setup(31, GPIO.OUT,initial=1)
 GPIO.setup(left_wheel_yellow, GPIO.OUT,initial=0)
 GPIO.setup(right_wheel_brown, GPIO.OUT,initial=0)
 GPIO.setup(left_wheel_orange, GPIO.OUT,initial=0)
+
+#Ultrasonic
+GPIO.setup(sonic_TrigF, GPIO.OUT,initial=0)
+GPIO.setup(sonic_EchoF, GPIO.IN)
 try:
     print('ready')
 except KeyboardInterrupt:
@@ -122,7 +161,8 @@ while(True):
  #       if(right_signal==0 and left_signal==0):
 #            Forward(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)            
     LineTracker(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
-    print(getLineM())
+    dist = distance()
+    print ("Measured Distance = %.1f cm" % dist)
 #	input = getch()
     cap = cv2.VideoCapture(0)
     capture(cap)
