@@ -66,8 +66,8 @@ def calculate_weight(img):
 
 def get_score(img):
     height, width, _ = img.shape
-    fx = 250 / width
-    fy = 250 / height
+    fx = 50 / width
+    fy = 50 / height
     img = cv2.resize(img, (0,0), fx=fx, fy=fy)
 
     result = highlight_track(img)

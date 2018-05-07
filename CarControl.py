@@ -6,19 +6,13 @@ import numpy as np
 from queue import Queue
 import threading
 from detector import get_score, get_action
-def capture(cap):
-    while(cap.isOpened()):           
-       ret, frame = cap.read()
-	#_,imgEncode = cv2.imencode('.jpg',frame)
-#     	print(imgEncode.tostring().encode("base64"))
+import time
 
-       # ws.send(imgEncode.tostring().encode("base64"))
-       time.sleep(0.3)
-    #    print(frame)
-       outputh, outputv = get_score(frame)
-       action = int(get_action(outputh, outputv))
-       print(action)
-    #ws.close()
+def capture(cap):
+    ret, frame = cap.read()
+    outputh, _ = get_score(frame)
+    return outputh
+
 
 def Forward(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange):
     GPIO.output(left_wheel_yellow,GPIO.HIGH)
@@ -66,27 +60,31 @@ def getLineL():
     return GPIO.input(lineLeft)==1
 def getLineR():
     return GPIO.input(lineRight)==1
+
 def LineTracker(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange):
     LM=getLineM()
     LL=getLineL()
     LR=getLineR()
-    if(LM and LR and LL): #all same and all equal and all see 1 (all on white line [means vertical car and horizontal line])
-        Turn_left(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange) #depends on circular track if always left or right      
-    elif((LM and LR and not LL )or LR): #if right detect line then rotate to right (order of left and right can change based on track precedence)
-        Turn_right(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
-    elif((LM and LL and not LR )or LL):  #if left detect line then rotate to left (order of left and right can change based on track precedence)
-        Turn_left(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
-    elif(not LM and not LR and not LL):
-        Stop(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
-    elif(LM and not LR and not LL): #if left and right see black and only middle sees white then forward
-        Forward(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)      
-    time.sleep(0.01)
-    Stop(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
+
+    if(LL and not LR):
+        return 1
+
+    if(LR and not LL):
+        return 3
+
+    if(LM and not LR and not LL):
+        return 2
+
+    if(LM and LR and LL):
+        return 5
+
+    return 7
+
+
 def getProximityIR():
     return GPIO.input(proximity_IR)==0 #0 something infront and 1 nothing infront
 
 GPIO.setmode(GPIO.BOARD)
-import time
 right_wheel_red=11
 right_wheel_brown=13
 left_wheel_yellow =23
@@ -114,40 +112,27 @@ GPIO.setup(lineRight, GPIO.IN) # Right line sensor
 GPIO.setup(proximity_IR, GPIO.IN) # infrared proximity sensor
 
 
-while(True):
+cap = cv2.VideoCapture(0)
 
-#	right_signal=GPIO.input(trig_right)
-#	left_signal= GPIO.input(trig_left)
-#	if(left_signal==1):
-  #          Turn_right(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
-#	if(right_signal==1):
- #           Turn_left(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
-   #     if(right_signal==1 and left_signal==1):
-  #          Forward(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
- #       if(right_signal==0 and left_signal==0):
-#            Forward(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)            
-    LineTracker(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
-    print(getProximityIR())
-#	input = getch()
-    cap = cv2.VideoCapture(0)
-    capture(cap)
-    if(input=='a'):
-            Turn_left(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
-            print('a')
-    if(input=='w'):
-            Forward(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
-            print('w')
-    if(input=='s'):
-            Backward(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
-            print('s')
-    if(input=='d'):
-            Turn_right(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
-        #Turn_right(left_wheel,right_wheel)
-            print('d')
-    if(input=='q'):
-            Stop(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
-            #Stop(left_wheel,right_wheel)
-            print('d')
-    if(input=='e'):
-            print('exitinnnnggg')
-            break
+
+while(True):
+    Stop(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
+
+
+    l_value = LineTracker(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
+    h_value = capture(cap)
+
+    action = int(get_action(h_value, l_value))
+
+    print(action)
+
+    if action == 1:
+        Turn_left(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
+    if action == 2:
+        Forward(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
+    if action == 3:
+        Turn_right(right_wheel_red,right_wheel_brown,left_wheel_yellow,left_wheel_orange)
+
+
+    time.sleep(0.9)
+
